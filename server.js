@@ -15,7 +15,8 @@ const crypto = require('crypto');
 const os = require('os');
 
 const ROOT = __dirname;
-const DATA_DIR = path.join(ROOT, 'data');
+// Папку с данными можно вынести на постоянный диск хостинга:  DATA_DIR=/var/data npm start
+const DATA_DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(ROOT, 'data');
 const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -26,6 +27,7 @@ const MAX_BODY = 80 * 1024 * 1024;      // общий лимит тела зап
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024; // одно фото, байт
 const TOKEN_TTL = 12 * 60 * 60 * 1000;  // сессия админа — 12 часов
 
+fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 /* =========================== НАСТРОЙКИ ПО УМОЛЧАНИЮ ======================= */
@@ -1024,6 +1026,16 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    // проверка живости для хостинга (Render и др.)
+    if (url.pathname === '/healthz') {
+      return sendJson(res, 200, {
+        ok: true,
+        uptime: Math.round(process.uptime()),
+        photos: db.photos.length,
+        bookings: db.bookings.length,
+        dataDir: DATA_DIR,
+      });
+    }
     if (url.pathname.startsWith('/api/')) {
       return await handleApi(req, res, url);
     }
@@ -1050,19 +1062,33 @@ loadDb();
 
 server.listen(PORT, HOST, () => {
   const line = '─'.repeat(58);
+  const hosted = !!process.env.RENDER || !!process.env.DATA_DIR;
   console.log('\n' + line);
   console.log('  🍓  ФОТОСТУДИЯ «МАЛИНА» — г. Белорецк');
   console.log(line);
   console.log('  Сайт для гостей:   http://localhost:' + PORT + '/');
   console.log('  Вход для админа:   http://localhost:' + PORT + '/admin.html');
-  for (const ip of lanAddresses()) {
-    console.log('  С телефона (Wi-Fi): http://' + ip + ':' + PORT + '/');
+  if (!hosted) {
+    for (const ip of lanAddresses()) {
+      console.log('  С телефона (Wi-Fi): http://' + ip + ':' + PORT + '/');
+    }
+  } else {
+    console.log('  Режим хостинга: порт ' + PORT + ', адрес ' + HOST);
   }
   console.log(line);
   console.log('  Логин админа:  ' + db.settings.adminLogin);
-  console.log('  Пароль:        malina2024   (смените в панели → Настройки)');
-  console.log('  Данные:        data/db.json, фото — data/uploads/');
+  console.log('  Пароль:        ' + (db.settings.adminPassHash === hashPassword('malina2024', db.settings.adminPassSalt)
+    ? 'malina2024   (стандартный — смените в панели → Настройки)'
+    : 'задан свой (стандартный изменён)'));
+  console.log('  Данные:        ' + DATA_DIR);
   console.log(line + '\n');
+});
+
+process.on('SIGTERM', () => {
+  // хостинг присылает SIGTERM при перезапуске — успеваем сохранить данные
+  console.log('\nПолучен SIGTERM, сохраняю данные…');
+  saveDb(true);
+  process.exit(0);
 });
 
 process.on('SIGINT', () => {

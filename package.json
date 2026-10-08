@@ -1,0 +1,21 @@
+{
+  "name": "malina-photo-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Сайт фотостудии «Малина» (г. Белорецк): галерея, онлайн-бронирование с блокировкой занятых слотов, админ-панель",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node tools/smoke-test.js",
+    "seed": "node tools/seed-demo-photos.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "фотостудия",
+    "бронирование",
+    "nodejs"
+  ],
+  "license": "UNLICENSED"
+}
