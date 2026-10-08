@@ -3,16 +3,23 @@ chcp 65001 >nul
 title Загрузка сайта "Малина" на GitHub
 cd /d "%~dp0"
 
+rem ---------- ищем git: в системе, затем внутри GitHub Desktop ----------
+set "GIT="
 where git >nul 2>nul
-if errorlevel 1 (
+if not errorlevel 1 set "GIT=git"
+
+if not defined GIT (
+  for /d %%d in ("%LOCALAPPDATA%\GitHubDesktop\app-*") do (
+    if exist "%%d\resources\app\git\cmd\git.exe" set "GIT=%%d\resources\app\git\cmd\git.exe"
+  )
+)
+if not defined GIT if exist "%ProgramFiles%\Git\cmd\git.exe" set "GIT=%ProgramFiles%\Git\cmd\git.exe"
+
+if not defined GIT (
   echo.
-  echo   Git не установлен на этом компьютере.
-  echo.
-  echo   Установите один из вариантов ^(любой^):
-  echo     1^) Git for Windows:  https://git-scm.com/download/win
-  echo     2^) GitHub Desktop:   https://desktop.github.com
-  echo.
-  echo   После установки запустите этот файл снова.
+  echo   Git не найден.
+  echo   Установите Git for Windows: https://git-scm.com/download/win
+  echo   или GitHub Desktop:        https://desktop.github.com
   echo.
   pause
   exit /b 1
@@ -23,9 +30,8 @@ echo   ============================================================
 echo     Загрузка сайта фотостудии "Малина" на GitHub
 echo   ============================================================
 echo.
-echo   Сначала создайте пустой репозиторий на https://github.com/new
-echo   ^(имя, например, malina-studio^). Галочки README и .gitignore
-echo   ставить НЕ нужно.
+echo   Сначала создайте ПУСТОЙ репозиторий: https://github.com/new
+echo   ^(галочки "Add a README" и ".gitignore" ставить не нужно^)
 echo.
 
 set "REPO="
@@ -36,37 +42,39 @@ if "%REPO%"=="" (
   exit /b 1
 )
 
-rem --- имя и почта для коммитов ---
-for /f "delims=" %%i in ('git config --global user.name 2^>nul') do set "GITNAME=%%i"
+for /f "delims=" %%i in ('"%GIT%" config --global user.name 2^>nul') do set "GITNAME=%%i"
 if "%GITNAME%"=="" (
   set /p GITNAME=Ваше имя для коммитов: 
-  git config --global user.name "%GITNAME%"
+  "%GIT%" config --global user.name "%GITNAME%"
 )
-for /f "delims=" %%i in ('git config --global user.email 2^>nul') do set "GITMAIL=%%i"
+for /f "delims=" %%i in ('"%GIT%" config --global user.email 2^>nul') do set "GITMAIL=%%i"
 if "%GITMAIL%"=="" (
-  set /p GITMAIL=Ваш e-mail (тот же, что на GitHub): 
-  git config --global user.email "%GITMAIL%"
+  set /p GITMAIL=Ваш e-mail ^(тот же, что на GitHub^): 
+  "%GIT%" config --global user.email "%GITMAIL%"
 )
 
 echo.
 echo   Готовлю файлы...
-if not exist .git git init >nul
-git add .
-git -c core.quotepath=false commit -m "Фотостудия Малина: сайт, онлайн-бронирование, админ-панель" >nul 2>nul
-git branch -M main
-git remote remove origin >nul 2>nul
-git remote add origin %REPO%
+if not exist .git "%GIT%" init --initial-branch=main >nul
+"%GIT%" add -A
+"%GIT%" commit -m "Фотостудия Малина: сайт, онлайн-бронирование, админ-панель" >nul 2>nul
+"%GIT%" branch -M main
+"%GIT%" remote remove origin >nul 2>nul
+"%GIT%" remote add origin %REPO%
 
-echo   Отправляю на GitHub ^(может потребоваться вход в аккаунт^)...
+echo   Отправляю на GitHub ^(может открыться окно входа в аккаунт^)...
 echo.
-git push -u origin main
+"%GIT%" push -u origin main
 
 echo.
 if errorlevel 1 (
   echo   Не получилось отправить. Частые причины:
   echo     - неверная ссылка на репозиторий;
-  echo     - не выполнен вход в GitHub ^(появится окно входа^);
-  echo     - репозиторий уже содержит файлы ^(создайте пустой^).
+  echo     - не выполнен вход в GitHub;
+  echo     - репозиторий не пустой ^(создайте пустой^).
+  echo.
+  echo   Проще всего: откройте GitHub Desktop -^> File -^> Add local repository -^>
+  echo   выберите папку сайта -^> Publish repository.
 ) else (
   echo   Готово! Код загружен на GitHub.
 )
