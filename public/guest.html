@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffdcea">
+<meta name="description" content="Фотостудия «Малина» в Белорецке: галерея работ, цены на фотосессии и онлайн-бронирование свободного времени.">
+<title>Гостям · Фотостудия «Малина» · Белорецк</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='82'%3E%F0%9F%8D%93%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <a class="logo" href="index.html">
+      <span class="berry">🍓</span>
+      <span>Малина<small>фотостудия · Белорецк</small></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Меню">☰</button>
+    <nav class="site-nav" id="siteNav">
+      <a href="#gallery">Галерея</a>
+      <a href="#services">Услуги и цены</a>
+      <a href="#booking">Бронирование</a>
+      <a href="#contacts">Контакты</a>
+      <a href="index.html" style="color:var(--berry)">← На главную</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================== ГЕРО ============================== -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="hero-tag">Белорецк · фотостудия</span>
+      <h1 id="heroTitle">Ваши истории в мягком свете</h1>
+      <p class="lead" id="heroSubtitle">
+        Портретные, семейные и Love Story съёмки. Уютная студия, естественный свет и фотограф,
+        который помогает расслабиться перед камерой.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#booking">Забронировать время</a>
+        <a class="btn ghost" href="#gallery">Смотреть работы</a>
+      </div>
+      <div class="hero-facts">
+        <div class="fact"><b id="factPhotos">—</b><span>работ в галерее</span></div>
+        <div class="fact"><b id="factServices">—</b><span>форматов съёмки</span></div>
+        <div class="fact"><b id="factFree">—</b><span>свободных часов на 2 недели</span></div>
+      </div>
+    </div>
+    <aside class="hero-card">
+      <h3>Как это работает</h3>
+      <ul>
+        <li><span>🍓</span><span>Выбираете <b>дату и время</b> — занятые часы сразу видны и недоступны.</span></li>
+        <li><span>✍️</span><span>Заполняете <b>имя и телефон</b> и пожелания к съёмке.</span></li>
+        <li><span>🔒</span><span>Слот <b>закрепляется за вами</b> — другой гость его уже не займёт.</span></li>
+        <li><span>📞</span><span>Администратор подтверждает бронь по телефону.</span></li>
+      </ul>
+      <a class="btn soft block" href="#booking">Выбрать время</a>
+      <p class="muted" style="font-size:.8rem;margin:12px 0 0" id="paymentNote"></p>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================ ГАЛЕРЕЯ ============================ -->
+<section class="block" id="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">портфолио</span>
+      <h2>Галерея студии</h2>
+      <p>Свежие кадры добавляет администратор студии. Нажмите на фото, чтобы рассмотреть.</p>
+    </div>
+    <div class="gallery-filters" id="galleryFilters"></div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+    <div class="empty-state hidden" id="galleryEmpty">Пока в галерее нет фотографий 🍓</div>
+  </div>
+</section>
+
+<!-- ============================= УСЛУГИ ============================= -->
+<section class="block bg-soft" id="services">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">форматы съёмок</span>
+      <h2>Услуги и цены</h2>
+      <p>Стоимость указана за съёмку с обработкой. Итоговую смету подтверждает администратор.</p>
+    </div>
+    <div class="services-grid" id="servicesGrid"></div>
+    <p class="center muted reveal" style="margin-top:26px" id="aboutText"></p>
+  </div>
+</section>
+
+<!-- =========================== БРОНИРОВАНИЕ =========================== -->
+<section class="block" id="booking">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">онлайн-запись</span>
+      <h2>Забронировать фотосессию</h2>
+      <p>Регистрация не нужна — просто выберите время и оставьте контакты. Занятые часы помечены «занято».</p>
+    </div>
+
+    <div class="booking-shell">
+      <div>
+        <div class="card reveal">
+          <div class="steps">
+            <span class="step-pill" id="stepPill1"><b>1</b> Формат</span>
+            <span class="step-pill" id="stepPill2"><b>2</b> Дата и время</span>
+            <span class="step-pill" id="stepPill3"><b>3</b> Контакты</span>
+          </div>
+
+          <div class="field">
+            <label for="serviceSelect">Формат съёмки</label>
+            <select id="serviceSelect"></select>
+          </div>
+
+          <div class="field" style="margin-bottom:6px">
+            <label>Дата съёмки <span class="hint" id="dateHint">— свободные дни ближе к сегодняшнему</span></label>
+            <div class="date-strip" id="dateStrip"></div>
+          </div>
+
+          <div class="field">
+            <label>Время <span class="hint" id="slotHint">выберите свободный слот</span></label>
+            <div class="slots" id="slots"></div>
+            <div class="legend">
+              <span><i></i> свободно</span>
+              <span><i class="busy"></i> занято другим гостем / студией</span>
+              <span class="live-dot" id="liveDot"><i></i> расписание обновляется онлайн</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card reveal">
+          <h3>Ваши контакты</h3>
+          <div class="form-error hidden" id="formError"></div>
+          <form id="bookingForm" novalidate>
+            <div class="form-row">
+              <div class="field">
+                <label for="guestName">Имя *</label>
+                <input type="text" id="guestName" name="name" placeholder="Как к вам обращаться" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="guestPhone">Телефон *</label>
+                <input type="tel" id="guestPhone" name="phone" placeholder="+7 (999) 123-45-67" inputmode="tel" autocomplete="tel" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="guestEmail">E-mail <span class="hint">необязательно</span></label>
+                <input type="email" id="guestEmail" name="email" placeholder="you@mail.ru" autocomplete="email">
+              </div>
+              <div class="field">
+                <label for="guestPeople">Сколько человек в кадре</label>
+                <input type="number" id="guestPeople" name="people" value="1" min="1" max="20">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Быстрые пожелания</label>
+              <div class="gallery-filters" style="justify-content:flex-start;margin-bottom:0" id="prefChips"></div>
+            </div>
+
+            <div class="field">
+              <label for="guestPreferences">Пожелания к съёмке</label>
+              <textarea id="guestPreferences" placeholder="Например: нежный образ в светлых тонах, нужны кадры с ребёнком, хотим много естественного света…"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="guestSource">Как о нас узнали <span class="hint">необязательно</span></label>
+              <select id="guestSource">
+                <option value="">— не выбрано —</option>
+                <option>Instagram</option>
+                <option>ВКонтакте</option>
+                <option>По рекомендации друзей</option>
+                <option>Проходил(а) мимо студии</option>
+                <option>Поиск в интернете</option>
+                <option>Уже снимались у нас</option>
+              </select>
+            </div>
+
+            <label class="checkbox" style="margin-bottom:16px">
+              <input type="checkbox" id="guestAgree">
+              <span>Согласен(на) на обработку персональных данных и связь по указанному телефону.</span>
+            </label>
+
+            <button class="btn block" type="submit" id="bookingSubmit">Забронировать время</button>
+            <p class="muted" style="font-size:.78rem;margin:12px 0 0">
+              Заявка сразу попадает администратору. Слоты помечаются занятыми для других гостей мгновенно.
+            </p>
+          </form>
+        </div>
+      </div>
+
+      <aside>
+        <div class="card side-card reveal">
+          <h3>Ваша бронь</h3>
+          <ul class="summary-list">
+            <li><span>Формат</span><b id="sumService">не выбран</b></li>
+            <li><span>Дата</span><b id="sumDate">не выбрана</b></li>
+            <li><span>Время</span><b id="sumTime">не выбрано</b></li>
+            <li><span>Человек в кадре</span><b id="sumPeople">1</b></li>
+            <li><span>Стоимость</span><b id="sumPrice">—</b></li>
+          </ul>
+          <div id="ticketBox" class="hidden"></div>
+          <button class="btn soft block" id="scrollToFormBtn" type="button">Заполнить контакты</button>
+        </div>
+
+        <div class="card reveal">
+          <h3>Мои записи</h3>
+          <p class="muted" style="font-size:.86rem">Введите телефон, чтобы посмотреть свои брони и их статус.</p>
+          <div class="field">
+            <input type="tel" id="lookupPhone" placeholder="+7 (999) 123-45-67" inputmode="tel">
+          </div>
+          <button class="btn ghost block small" id="lookupBtn" type="button">Найти мои брони</button>
+          <div id="lookupResult" style="margin-top:14px"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ КОНТАКТЫ ============================ -->
+<section class="block bg-soft" id="contacts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="kicker">как нас найти</span>
+      <h2>Контакты студии</h2>
+      <p>Позвоните или напишите — подскажем по образам, реквизиту и свободным датам.</p>
+    </div>
+    <div class="contacts-grid" id="contactsGrid"></div>
+    <div class="map-frame reveal">
+      <iframe id="mapFrame" title="Карта: фотостудия «Малина», Белорецк" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Фотостудия «Малина»</h4>
+        <p id="footAbout" style="font-size:.9rem;color:rgba(255,214,228,.85)"></p>
+      </div>
+      <div>
+        <h4>Разделы</h4>
+        <p style="margin:0;line-height:2">
+          <a href="#gallery">Галерея</a><br>
+          <a href="#services">Услуги и цены</a><br>
+          <a href="#booking">Бронирование</a><br>
+          <a href="admin.html">Вход для администратора</a>
+        </p>
+      </div>
+      <div>
+        <h4>Контакты</h4>
+        <p id="footContacts" style="font-size:.9rem;line-height:1.9;margin:0"></p>
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© <span id="year"></span> Фотостудия «Малина», <span id="footCity">Белорецк</span></span>
+      <span><a href="index.html">← Вернуться на главную</a></span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="guest.js"></script>
+</body>
+</html>

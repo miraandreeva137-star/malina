@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffdcea">
+<meta name="description" content="Фотостудия «Малина» в Белорецке — портретные, семейные и Love Story съёмки. Онлайн-бронирование фотосессии.">
+<title>Фотостудия «Малина» · Белорецк</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='82'%3E%F0%9F%8D%93%3C/text%3E%3C/svg%3E">
+</head>
+<body class="landing">
+
+<!-- декоративные пятна градиента -->
+<div class="landing-blobs" aria-hidden="true">
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+</div>
+
+<div class="spotlight" id="spotlight" aria-hidden="true"></div>
+<canvas id="petalCanvas" aria-hidden="true"></canvas>
+
+<!-- кастомный курсор -->
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+<div class="cursor-label" id="cursorLabel" aria-hidden="true"></div>
+
+<main class="landing-inner">
+  <span class="landing-badge">Белорецк · с 2019 года</span>
+
+  <h1 class="landing-title">Малина</h1>
+  <p class="landing-sub">фотостудия мягкого света</p>
+  <p class="landing-note">
+    Портреты, семейные истории, Love Story и съёмки для брендов.
+    Выберите, как войти: гостю — запись на фотосессию, администратору — панель управления студией.
+  </p>
+
+  <div class="choice-grid">
+    <article class="choice-card guest" data-go="guest.html" tabindex="0" role="link"
+             aria-label="Войти как гость и записаться на фотосессию" data-cursor="Записаться">
+      <span class="ic">🍓</span>
+      <h3>Я гость</h3>
+      <p>Посмотрите галерею, цены и забронируйте удобное время. Регистрация не нужна — данные спросим только при записи.</p>
+      <span class="go">Записаться на фотосессию <span>→</span></span>
+    </article>
+
+    <article class="choice-card admin" id="adminCard" tabindex="0" role="button"
+             aria-label="Вход для администратора" data-cursor="Войти">
+      <span class="ic">🔐</span>
+      <h3>Я администратор</h3>
+      <p>Вход по логину и паролю: управление фотографиями, заявками, расписанием и контактами студии.</p>
+      <span class="go">Войти в панель <span>→</span></span>
+    </article>
+  </div>
+</main>
+
+<footer class="landing-footer">
+  <p style="margin:0 0 4px">
+    <strong>Фотостудия «Малина»</strong> · <span id="fCity">Белорецк</span>, <span id="fAddress">уточняется</span>
+  </p>
+  <p style="margin:0;font-size:.82rem">
+    <span id="fPhone">—</span> · <span id="fHours">Ежедневно</span> · <span id="fEmail">—</span>
+  </p>
+</footer>
+
+<div class="hint-pill">🍓 ведите курсором — ягоды разлетаются</div>
+
+<!-- ===================== вход администратора ===================== -->
+<div class="modal-backdrop hidden" id="adminModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+    <button class="close-x" id="closeAdminModal" aria-label="Закрыть">✕</button>
+    <h3 id="adminModalTitle">Вход для администратора</h3>
+    <p class="muted" style="font-size:.9rem">Введите логин и пароль студии.</p>
+
+    <div class="form-error hidden" id="loginError"></div>
+
+    <form id="loginForm" autocomplete="on">
+      <div class="field">
+        <label for="loginInput">Логин</label>
+        <input type="text" id="loginInput" name="login" autocomplete="username" placeholder="admin" required>
+      </div>
+      <div class="field">
+        <label for="passInput">Пароль</label>
+        <input type="password" id="passInput" name="password" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button class="btn block" type="submit" id="loginBtn">Войти в панель</button>
+    </form>
+
+    <p class="muted" id="defaultCreds" style="font-size:.8rem;margin:14px 0 0" hidden>
+      Стандартный вход: <b>admin</b> / <b>malina2024</b> — смените пароль в разделе «Настройки».
+    </p>
+    <p style="font-size:.8rem;margin:14px 0 0"><a href="guest.html">← вернуться на страницу для гостей</a></p>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------ тосты ------------------------------ */
+  const toastWrap = document.getElementById('toastWrap');
+  function toast(text, kind) {
+    const el = document.createElement('div');
+    el.className = 'toast ' + (kind || '');
+    el.textContent = text;
+    toastWrap.appendChild(el);
+    setTimeout(() => {
+      el.style.transition = 'opacity .35s ease, transform .35s ease';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(10px)';
+      setTimeout(() => el.remove(), 360);
+    }, 3200);
+  }
+
+  /* --------------------------- данные студии -------------------------- */
+  fetch('/api/settings')
+    .then((r) => r.json())
+    .then((data) => {
+      if (!data || !data.ok) return;
+      const s = data.settings;
+      document.getElementById('fCity').textContent = s.city;
+      document.getElementById('fAddress').textContent = s.address;
+      document.getElementById('fPhone').textContent = s.phone;
+      document.getElementById('fHours').textContent = s.workHours;
+      document.getElementById('fEmail').textContent = s.email;
+      if (s.defaultPassword) document.getElementById('defaultCreds').hidden = false;
+      document.title = 'Фотостудия «' + s.studioName + '» · ' + s.city;
+    })
+    .catch(() => {});
+
+  /* --------------- выбор «гость» / «администратор» ------------------- */
+  const adminModal = document.getElementById('adminModal');
+  const adminCard = document.getElementById('adminCard');
+
+  document.querySelectorAll('[data-go]').forEach((card) => {
+    const go = () => {
+      burst(window.innerWidth / 2, window.innerHeight / 2, 16);
+      card.style.transform = 'scale(.97)';
+      setTimeout(() => { window.location.href = card.getAttribute('data-go'); }, 190);
+    };
+    card.addEventListener('click', go);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+    });
+  });
+
+  function openAdminModal() {
+    adminModal.classList.remove('hidden');
+    setLabel('Вход');
+    setTimeout(() => document.getElementById('loginInput').focus(), 60);
+  }
+  function closeAdminModal() {
+    adminModal.classList.add('hidden');
+    document.getElementById('loginError').classList.add('hidden');
+  }
+
+  adminCard.addEventListener('click', openAdminModal);
+  adminCard.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAdminModal(); }
+  });
+  document.getElementById('closeAdminModal').addEventListener('click', closeAdminModal);
+  adminModal.addEventListener('click', (e) => { if (e.target === adminModal) closeAdminModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAdminModal(); });
+
+  const loginForm = document.getElementById('loginForm');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginError = document.getElementById('loginError');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.classList.add('hidden');
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<span class="spinner"></span> Проверяем…';
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          login: document.getElementById('loginInput').value,
+          password: document.getElementById('passInput').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Не удалось войти');
+      localStorage.setItem('malina_admin_token', data.token);
+      localStorage.setItem('malina_admin_login', data.login || 'admin');
+      toast('Добро пожаловать! Открываю панель…', 'ok');
+      burst(window.innerWidth / 2, window.innerHeight / 2, 26);
+      setTimeout(() => { window.location.href = 'admin.html'; }, 500);
+    } catch (err) {
+      loginError.textContent = err.message;
+      loginError.classList.remove('hidden');
+      burst(window.innerWidth / 2, window.innerHeight * 0.4, 10);
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Войти в панель';
+    }
+  });
+
+  /* ======================= АКТИВНОСТЬ С КУРСОРОМ ====================== */
+
+  const canvas = document.getElementById('petalCanvas');
+  const ctx = canvas.getContext('2d');
+  const ring = document.getElementById('cursorRing');
+  const dot = document.getElementById('cursorDot');
+  const labelEl = document.getElementById('cursorLabel');
+  const spotlight = document.getElementById('spotlight');
+
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  let dpr = Math.min(2, window.devicePixelRatio || 1);
+
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const pointer = { x: W / 2, y: H / 2, px: W / 2, py: H / 2, active: false, speed: 0 };
+  const ringPos = { x: W / 2, y: H / 2 };
+  const dotPos = { x: W / 2, y: H / 2 };
+
+  const COLORS = ['#ff9dbb', '#f76f9d', '#ffc2d8', '#b3245c', '#ffd9e8', '#ff7aa8'];
+  const BERRIES = ['#d61f5c', '#e83e73', '#b3245c'];
+
+  const particles = [];
+  const MAX_PARTICLES = reduce ? 40 : 460;
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function spawnAmbient() {
+    particles.push({
+      type: Math.random() < 0.22 ? 'berry' : 'dot',
+      x: rand(0, W),
+      y: H + rand(10, 120),
+      vx: rand(-0.16, 0.16),
+      vy: rand(-0.55, -0.16),
+      r: rand(2.2, 5.6),
+      life: 1,
+      decay: rand(0.0009, 0.0026),
+      rot: rand(0, Math.PI * 2),
+      spin: rand(-0.012, 0.012),
+      color: pick(COLORS),
+      wobble: rand(0, Math.PI * 2)
+    });
+  }
+
+  function spawnTrail(x, y) {
+    if (particles.length > MAX_PARTICLES) return;
+    particles.push({
+      type: 'spark',
+      x: x + rand(-7, 7),
+      y: y + rand(-7, 7),
+      vx: rand(-0.35, 0.35),
+      vy: rand(-0.5, 0.15),
+      r: rand(1.2, 3.2),
+      life: 1,
+      decay: rand(0.012, 0.026),
+      rot: rand(0, Math.PI * 2),
+      spin: rand(-0.05, 0.05),
+      color: pick(COLORS),
+      wobble: rand(0, Math.PI * 2)
+    });
+  }
+
+  function burst(x, y, count) {
+    const n = reduce ? Math.round(count / 3) : count;
+    for (let i = 0; i < n; i += 1) {
+      const angle = (Math.PI * 2 * i) / n + rand(-0.2, 0.2);
+      const speed = rand(1.4, 5.2);
+      particles.push({
+        type: Math.random() < 0.5 ? 'heart' : 'spark',
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.9,
+        r: rand(2.6, 7.5),
+        life: 1,
+        decay: rand(0.008, 0.016),
+        rot: rand(0, Math.PI * 2),
+        spin: rand(-0.14, 0.14),
+        color: pick(Math.random() < 0.5 ? BERRIES : COLORS),
+        wobble: rand(0, Math.PI * 2)
+      });
+    }
+  }
+
+  function drawHeart(x, y, size, rot, color, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    const s = size / 16;
+    ctx.moveTo(0, 4 * s);
+    ctx.bezierCurveTo(-8 * s, -4 * s, -4 * s, -12 * s, 0, -6 * s);
+    ctx.bezierCurveTo(4 * s, -12 * s, 8 * s, -4 * s, 0, 4 * s);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  let lastTrail = 0;
+  let raf = 0;
+
+  function step(now) {
+    ctx.clearRect(0, 0, W, H);
+
+    // амбиентные ягоды
+    if (!reduce && particles.filter((p) => p.type !== 'spark').length < 46 && Math.random() < 0.4) {
+      spawnAmbient();
+    }
+
+    // след за курсором
+    if (pointer.active && now - lastTrail > 42) {
+      lastTrail = now;
+      spawnTrail(pointer.x, pointer.y);
+    }
+
+    for (let i = particles.length - 1; i >= 0; i -= 1) {
+      const p = particles[i];
+
+      // отталкивание от курсора
+      const dx = p.x - pointer.x;
+      const dy = p.y - pointer.y;
+      const dist2 = dx * dx + dy * dy;
+      const R = 132;
+      if (pointer.active && dist2 < R * R && dist2 > 0.01) {
+        const dist = Math.sqrt(dist2);
+        const force = (1 - dist / R) * 0.62;
+        p.vx += (dx / dist) * force;
+        p.vy += (dy / dist) * force;
+      }
+
+      p.wobble += 0.03;
+      p.x += p.vx + Math.sin(p.wobble) * 0.22;
+      p.y += p.vy;
+      p.rot += p.spin;
+      p.vx *= 0.965;
+      p.vy *= 0.965;
+      if (p.type !== 'spark') p.vy -= 0.004; // лёгкий подъём
+      p.life -= p.decay;
+
+      if (p.life <= 0 || p.y < -60 || p.y > H + 160 || p.x < -80 || p.x > W + 80) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      const alpha = Math.max(0, Math.min(1, p.life));
+      if (p.type === 'heart') {
+        drawHeart(p.x, p.y, p.r * 2.4, p.rot, p.color, alpha);
+      } else if (p.type === 'berry') {
+        drawHeart(p.x, p.y, p.r * 2.1, p.rot, p.color, alpha * 0.9);
+      } else {
+        ctx.globalAlpha = alpha * 0.95;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // курсор
+    if (fine) {
+      ringPos.x += (pointer.x - ringPos.x) * 0.16;
+      ringPos.y += (pointer.y - ringPos.y) * 0.16;
+      dotPos.x += (pointer.x - dotPos.x) * 0.4;
+      dotPos.y += (pointer.y - dotPos.y) * 0.4;
+
+      const tiltX = Math.max(-1, Math.min(1, (pointer.x - ringPos.x) / 60));
+      const tiltY = Math.max(-1, Math.min(1, (pointer.y - ringPos.y) / 60));
+      ring.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0) scale(${1 + Math.min(0.25, pointer.speed / 90)})`;
+      ring.style.borderColor = `rgba(179, 36, 92, ${0.4 + Math.min(0.5, pointer.speed / 90)})`;
+      dot.style.transform = `translate3d(${dotPos.x}px, ${dotPos.y}px, 0)`;
+      labelEl.style.transform =
+        `translate3d(${pointer.x + tiltX * 6}px, ${pointer.y - 34 + tiltY * 4}px, 0) translate(-50%, -50%) scale(1)`;
+    }
+
+    raf = requestAnimationFrame(step);
+  }
+  raf = requestAnimationFrame(step);
+
+  function setLabel(text) {
+    if (!fine) return;
+    if (text) {
+      labelEl.textContent = text;
+      labelEl.classList.add('show');
+    } else {
+      labelEl.classList.remove('show');
+    }
+  }
+
+  function onMove(x, y) {
+    const dx = x - pointer.px;
+    const dy = y - pointer.py;
+    pointer.speed = Math.sqrt(dx * dx + dy * dy);
+    pointer.px = x;
+    pointer.py = y;
+    pointer.x = x;
+    pointer.y = y;
+    pointer.active = true;
+    if (fine) {
+      ring.style.opacity = '1';
+      dot.style.opacity = '1';
+      labelEl.style.opacity = labelEl.classList.contains('show') ? '1' : '0';
+      spotlight.style.opacity = '1';
+      spotlight.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    }
+  }
+
+  if (fine) {
+    window.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('mouseleave', () => {
+      pointer.active = false;
+      ring.style.opacity = '0';
+      dot.style.opacity = '0';
+      labelEl.style.opacity = '0';
+      spotlight.style.opacity = '0';
+    });
+    window.addEventListener('mousedown', (e) => {
+      ring.classList.add('grow');
+      burst(e.clientX, e.clientY, 18);
+    });
+    window.addEventListener('mouseup', () => ring.classList.remove('grow'));
+
+    // курсор реагирует на интерактивные элементы
+    document.querySelectorAll('a, button, .choice-card, input, [data-cursor]').forEach((el) => {
+      el.addEventListener('mouseenter', () => {
+        ring.classList.add('grow');
+        setLabel(el.getAttribute('data-cursor') || '');
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.classList.remove('grow');
+        setLabel('');
+      });
+    });
+  } else {
+    // тач-устройства: ягоды реагируют на палец
+    window.addEventListener('touchmove', (e) => {
+      const t = e.touches[0];
+      if (t) onMove(t.clientX, t.clientY);
+    }, { passive: true });
+    window.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      if (t) {
+        onMove(t.clientX, t.clientY);
+        burst(t.clientX, t.clientY, 14);
+      }
+    }, { passive: true });
+    window.addEventListener('pointerdown', (e) => burst(e.clientX, e.clientY, 14), { passive: true });
+  }
+
+  /* наклон карточек за курсором + подсветка */
+  document.querySelectorAll('.choice-card').forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      card.style.setProperty('--mx', mx + 'px');
+      card.style.setProperty('--my', my + 'px');
+      if (fine) {
+        const rx = ((my / rect.height) - 0.5) * -6;
+        const ry = ((mx / rect.width) - 0.5) * 8;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+      }
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+})();
+</script>
+</body>
+</html>

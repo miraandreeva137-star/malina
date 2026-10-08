@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffdcea">
+<meta name="robots" content="noindex, nofollow">
+<title>Админ-панель · Фотостудия «Малина»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='78' font-size='82'%3E%F0%9F%94%90%3C/text%3E%3C/svg%3E">
+</head>
+<body class="admin">
+
+<!-- ============================== ВХОД ============================== -->
+<section class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="brand">Малина</div>
+    <div class="sub">панель администратора</div>
+
+    <div class="form-error hidden" id="loginError"></div>
+
+    <form id="adminLoginForm">
+      <div class="field">
+        <label for="adminLogin">Логин</label>
+        <input type="text" id="adminLogin" autocomplete="username" placeholder="admin" required>
+      </div>
+      <div class="field">
+        <label for="adminPass">Пароль</label>
+        <input type="password" id="adminPass" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button class="btn block" type="submit" id="adminLoginBtn">Войти</button>
+    </form>
+
+    <p class="muted" id="loginHint" style="font-size:.8rem;margin:14px 0 0" hidden>
+      Стандартный вход: <b>admin</b> / <b>malina2024</b>. Смените пароль в разделе «Настройки».
+    </p>
+    <p style="font-size:.82rem;margin:16px 0 0"><a href="index.html">← на главную страницу</a></p>
+  </div>
+</section>
+
+<!-- ============================ ПАНЕЛЬ ============================= -->
+<div id="dashboard" class="hidden">
+  <header class="admin-header">
+    <div class="bar">
+      <span class="logo">
+        <span class="berry">🍓</span>
+        <span>Малина<small>панель администратора</small></span>
+      </span>
+      <div class="who">
+        <span>Вы вошли как <b id="whoLogin">admin</b></span>
+        <a class="btn small ghost" href="guest.html" target="_blank" rel="noopener">Открыть сайт</a>
+        <button class="btn small soft" id="logoutBtn" type="button">Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="bookings">📋 Заявки <span class="badge" id="badgeBookings">0</span></button>
+      <button class="tab-btn" data-tab="photos">🖼 Фотографии <span class="badge" id="badgePhotos">0</span></button>
+      <button class="tab-btn" data-tab="schedule">🗓 Расписание</button>
+      <button class="tab-btn" data-tab="guests">👥 Гости</button>
+      <button class="tab-btn" data-tab="settings">⚙️ Настройки</button>
+    </aside>
+
+    <main>
+      <!-- ------------------------- ЗАЯВКИ ------------------------- -->
+      <section class="panel active" id="panel-bookings">
+        <div class="panel-head">
+          <div>
+            <h2>Заявки на съёмку</h2>
+            <p>Пожелания гостей, контакты и подтверждение брони. Обновляется автоматически.</p>
+          </div>
+          <div class="filters-bar" style="margin:0">
+            <button class="chip-btn active" data-filter="all">Все</button>
+            <button class="chip-btn" data-filter="new">Новые</button>
+            <button class="chip-btn" data-filter="confirmed">Подтверждённые</button>
+            <button class="chip-btn" data-filter="done">Проведённые</button>
+            <button class="chip-btn" data-filter="cancelled">Отменённые</button>
+            <button class="btn small ghost" id="refreshBookings" type="button">Обновить</button>
+          </div>
+        </div>
+
+        <div class="stats-row" id="statsRow"></div>
+        <div class="booking-list" id="bookingList"></div>
+        <div class="empty-state hidden" id="bookingsEmpty">Заявок пока нет. Как только гость забронирует время — она появится здесь 🍓</div>
+      </section>
+
+      <!-- -------------------------- ФОТО ------------------------- -->
+      <section class="panel" id="panel-photos">
+        <div class="panel-head">
+          <div>
+            <h2>Фотографии на сайте</h2>
+            <p>Загрузите свои работы и удалите ненужные — галерея на сайте обновится сразу.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="dropzone" id="dropzone">
+            <div class="big">📷</div>
+            <strong>Перетащите фотографии сюда или нажмите, чтобы выбрать</strong>
+            <p>JPG, PNG, WEBP, GIF, AVIF, SVG · до 12 МБ каждая · можно сразу несколько</p>
+            <input type="file" id="fileInput" accept="image/*" multiple hidden>
+          </div>
+
+          <div class="upload-extra">
+            <div class="field" style="margin:0">
+              <label for="uploadTitle">Подпись (необязательно)</label>
+              <input type="text" id="uploadTitle" placeholder="Например: семейная съёмка в студии">
+            </div>
+            <div class="field" style="margin:0">
+              <label for="uploadCategory">Раздел галереи</label>
+              <input type="text" id="uploadCategory" list="categoryList" placeholder="Портреты" value="Съёмки">
+              <datalist id="categoryList">
+                <option value="Портреты"></option>
+                <option value="Семейные"></option>
+                <option value="Love Story"></option>
+                <option value="Детские"></option>
+                <option value="Свадебные"></option>
+                <option value="Съёмки"></option>
+              </datalist>
+            </div>
+          </div>
+
+          <div class="progress" id="uploadProgress"><i></i></div>
+          <p class="muted" style="font-size:.82rem;margin:12px 0 0" id="uploadStatus"></p>
+        </div>
+
+        <div class="photo-grid" id="photoGrid"></div>
+        <div class="empty-state hidden" id="photosEmpty">В галерее пока нет фотографий. Загрузите первые кадры 🍓</div>
+      </section>
+
+      <!-- ------------------------ РАСПИСАНИЕ --------------------- -->
+      <section class="panel" id="panel-schedule">
+        <div class="panel-head">
+          <div>
+            <h2>Расписание студии</h2>
+            <p>Нажмите на слот, чтобы закрыть время для брони или открыть его снова.</p>
+          </div>
+          <div class="filters-bar" style="margin:0">
+            <input type="date" id="schedDate" style="max-width:190px">
+            <button class="btn small ghost" id="schedToday" type="button">Сегодня</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 id="schedTitle" style="margin-bottom:4px">—</h3>
+          <p class="muted" style="font-size:.88rem" id="schedSub"></p>
+          <div class="sched-grid" id="schedGrid"></div>
+          <p class="muted" style="font-size:.8rem;margin:14px 0 0">
+            «свободно» — можно бронировать · «занято» — бронь гостя · «закрыто студией» — время недоступно для гостей
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Ближайшие 14 дней</h3>
+          <div class="day-list" id="dayList"></div>
+        </div>
+      </section>
+
+      <!-- --------------------------- ГОСТИ ---------------------- -->
+      <section class="panel" id="panel-guests">
+        <div class="panel-head">
+          <div>
+            <h2>Гости студии</h2>
+            <p>Гости не регистрируются: карточка создаётся автоматически при первой брони.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Имя</th>
+                <th>Телефон</th>
+                <th>E-mail</th>
+                <th>Броней</th>
+                <th>Съёмок проведено</th>
+                <th>Первый контакт</th>
+              </tr>
+            </thead>
+            <tbody id="guestsBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state hidden" id="guestsEmpty" style="margin-top:16px">Пока нет гостей.</div>
+      </section>
+
+      <!-- ------------------------ НАСТРОЙКИ --------------------- -->
+      <section class="panel" id="panel-settings">
+        <div class="panel-head">
+          <div>
+            <h2>Настройки студии</h2>
+            <p>Контакты, тексты, услуги и время для брони. Всё это сразу видно гостям на сайте.</p>
+          </div>
+          <button class="btn" id="saveSettings" type="button">Сохранить всё</button>
+        </div>
+
+        <div class="card">
+          <h3>Контакты</h3>
+          <div class="settings-grid">
+            <div class="field"><label for="setPhone">Телефон</label><input type="text" id="setPhone"></div>
+            <div class="field"><label for="setWhatsapp">WhatsApp (только цифры)</label><input type="text" id="setWhatsapp"></div>
+            <div class="field"><label for="setTelegram">Telegram (без @)</label><input type="text" id="setTelegram"></div>
+            <div class="field"><label for="setEmail">E-mail</label><input type="text" id="setEmail"></div>
+            <div class="field"><label for="setInstagram">Instagram</label><input type="text" id="setInstagram"></div>
+            <div class="field"><label for="setVk">ВКонтакте</label><input type="text" id="setVk"></div>
+            <div class="field"><label for="setCity">Город</label><input type="text" id="setCity"></div>
+            <div class="field"><label for="setWorkHours">Часы работы</label><input type="text" id="setWorkHours"></div>
+            <div class="field" style="grid-column:1/-1"><label for="setAddress">Адрес</label><input type="text" id="setAddress"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Название и тексты</h3>
+          <div class="settings-grid">
+            <div class="field"><label for="setStudioName">Название студии</label><input type="text" id="setStudioName"></div>
+            <div class="field"><label for="setTagline">Подпись под названием</label><input type="text" id="setTagline"></div>
+            <div class="field" style="grid-column:1/-1"><label for="setHeroTitle">Заголовок на странице гостя</label><input type="text" id="setHeroTitle"></div>
+            <div class="field" style="grid-column:1/-1"><label for="setHeroSubtitle">Подзаголовок</label><textarea id="setHeroSubtitle" style="min-height:70px"></textarea></div>
+            <div class="field" style="grid-column:1/-1"><label for="setAbout">О студии</label><textarea id="setAbout" style="min-height:80px"></textarea></div>
+            <div class="field"><label for="setPaymentNote">Примечание об оплате</label><textarea id="setPaymentNote" style="min-height:70px"></textarea></div>
+            <div class="field"><label for="setBookingNote">Примечание к брони</label><textarea id="setBookingNote" style="min-height:70px"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Услуги и цены</h3>
+          <div id="servicesEditor"></div>
+          <button class="btn small soft" id="addService" type="button" style="margin-top:10px">+ Добавить услугу</button>
+        </div>
+
+        <div class="card">
+          <h3>Время, доступное для брони</h3>
+          <p class="muted" style="font-size:.88rem">Формат ЧЧ:ММ. Гости смогут выбрать только эти слоты.</p>
+          <div class="slot-times" id="slotTimes"></div>
+          <div class="filters-bar" style="margin-top:12px">
+            <input type="time" id="newSlotTime" style="max-width:150px">
+            <button class="btn small ghost" id="addSlotTime" type="button">Добавить время</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Безопасность входа</h3>
+          <div class="settings-grid">
+            <div class="field"><label for="setLogin">Логин администратора</label><input type="text" id="setLogin"></div>
+            <div class="field"><label for="setLoginPass">Текущий пароль</label><input type="password" id="setLoginPass" placeholder="для смены логина"></div>
+            <button class="btn small ghost" id="saveLogin" type="button" style="align-self:end">Сменить логин</button>
+          </div>
+          <div class="hr"></div>
+          <div class="settings-grid">
+            <div class="field"><label for="curPass">Текущий пароль</label><input type="password" id="curPass"></div>
+            <div class="field"><label for="newPass">Новый пароль (мин. 6 символов)</label><input type="password" id="newPass"></div>
+            <div class="field"><label for="newPass2">Повторите новый пароль</label><input type="password" id="newPass2"></div>
+            <button class="btn small" id="savePass" type="button" style="align-self:end">Сменить пароль</button>
+          </div>
+          <div class="hr"></div>
+          <button class="btn small soft" id="exportBtn" type="button">Скачать резервную копию данных (JSON)</button>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>
